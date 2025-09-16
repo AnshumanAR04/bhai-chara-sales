@@ -1,9 +1,9 @@
 import { Suspense } from "react"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardMetrics } from "@/components/dashboard-metrics"
-import { RecentActivity } from "@/components/recent-activity"
-import { ConversionFunnel } from "@/components/conversion-funnel"
-import { TerritoryPerformance } from "@/components/territory-performance"
+import { DashboardMetrics } from "@/components/dashboard-metrics-server"
+import { RecentActivity } from "@/components/recent-activity-server"
+import { ConversionFunnel } from "@/components/conversion-funnel-server"
+import { TerritoryPerformance } from "@/components/territory-performance-server"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
