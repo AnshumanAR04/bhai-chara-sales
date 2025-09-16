@@ -36,7 +36,9 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
         </Suspense>
 
         {/* Filters */}
-        <ProductsFilters />
+        <Suspense fallback={<div className="h-16" />}>
+          <ProductsFilters />
+        </Suspense>
 
         {/* Products Table */}
         <Suspense fallback={<TableSkeleton />}>

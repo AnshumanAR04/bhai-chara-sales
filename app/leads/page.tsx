@@ -36,7 +36,9 @@ export default function LeadsPage({ searchParams }: LeadsPageProps) {
         </Suspense>
 
         {/* Filters */}
-        <LeadsFilters />
+        <Suspense fallback={<div className="h-16" />}>
+          <LeadsFilters />
+        </Suspense>
 
         {/* Leads Table */}
         <Suspense fallback={<TableSkeleton />}>

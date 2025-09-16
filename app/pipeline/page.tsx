@@ -33,7 +33,9 @@ export default function PipelinePage({ searchParams }: PipelinePageProps) {
         </Suspense>
 
         {/* Filters */}
-        <PipelineFilters />
+        <Suspense fallback={<div className="h-16" />}>
+          <PipelineFilters />
+        </Suspense>
 
         {/* Pipeline Board */}
         <Suspense fallback={<BoardSkeleton />}>

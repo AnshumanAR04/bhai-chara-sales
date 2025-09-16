@@ -37,7 +37,9 @@ export default function FarmersPage({ searchParams }: FarmersPageProps) {
         </Suspense>
 
         {/* Filters */}
-        <FarmersFilters />
+        <Suspense fallback={<div className="h-16" />}>
+          <FarmersFilters />
+        </Suspense>
 
         {/* Farmers Table */}
         <Suspense fallback={<TableSkeleton />}>
