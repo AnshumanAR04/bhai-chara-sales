@@ -1,3 +1,5 @@
+"use client"
+
 import { Suspense } from "react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { AnalyticsOverview } from "@/components/analytics-overview"
