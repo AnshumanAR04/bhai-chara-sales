@@ -1,10 +1,10 @@
 import { Suspense } from "react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { AnalyticsOverview } from "@/components/analytics-overview"
-import { SalesPerformanceChart } from "@/components/sales-performance-chart"
-import { LeadConversionAnalysis } from "@/components/lead-conversion-analysis"
-import { TerritoryAnalytics } from "@/components/territory-analytics"
-import { CropAnalytics } from "@/components/crop-analytics"
+import { SalesPerformanceChartServer } from "@/components/sales-performance-chart-server"
+import { LeadConversionAnalysisServer } from "@/components/lead-conversion-analysis-server"
+import { TerritoryAnalyticsServer } from "@/components/territory-analytics-server"
+import { CropAnalyticsServer } from "@/components/crop-analytics-server"
 import { TimeRangeSelector } from "@/components/time-range-selector"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -40,22 +40,22 @@ export default function AnalyticsPage({ searchParams }: AnalyticsPageProps) {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Suspense fallback={<ChartSkeleton />}>
-            <SalesPerformanceChart searchParams={searchParams} />
+            <SalesPerformanceChartServer searchParams={searchParams} />
           </Suspense>
 
           <Suspense fallback={<ChartSkeleton />}>
-            <LeadConversionAnalysis searchParams={searchParams} />
+            <LeadConversionAnalysisServer searchParams={searchParams} />
           </Suspense>
         </div>
 
         {/* Territory and Crop Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Suspense fallback={<ChartSkeleton />}>
-            <TerritoryAnalytics searchParams={searchParams} />
+            <TerritoryAnalyticsServer searchParams={searchParams} />
           </Suspense>
 
           <Suspense fallback={<ChartSkeleton />}>
-            <CropAnalytics searchParams={searchParams} />
+            <CropAnalyticsServer searchParams={searchParams} />
           </Suspense>
         </div>
       </main>
