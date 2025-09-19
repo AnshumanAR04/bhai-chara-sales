@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
@@ -22,7 +21,7 @@ export function AddProductDialog() {
     name: "",
     description: "",
     price: "",
-    category: "",
+    category: "", // Changed to text field instead of dropdown
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,21 +102,12 @@ export function AddProductDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select
+              <Input
+                id="category"
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Seeds">Seeds</SelectItem>
-                  <SelectItem value="Fertilizers">Fertilizers</SelectItem>
-                  <SelectItem value="Pesticides">Pesticides</SelectItem>
-                  <SelectItem value="Tools">Tools</SelectItem>
-                  <SelectItem value="Equipment">Equipment</SelectItem>
-                </SelectContent>
-              </Select>
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                placeholder="Enter category"
+              />
             </div>
           </div>
 

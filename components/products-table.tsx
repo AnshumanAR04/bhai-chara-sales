@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { createServerSupabaseClient } from "@/lib/supabase"
 import { formatDistanceToNow } from "date-fns"
-import { Package, IndianRupee, Edit, Trash2, TrendingUp } from "lucide-react"
+import { Package, IndianRupee, TrendingUp } from "lucide-react"
 import { ProductDetailsDialog } from "@/components/product-details-dialog"
+import { ProductActionsClient } from "@/components/product-actions-client"
 
 interface ProductsTableProps {
   searchParams: {
@@ -33,10 +34,6 @@ export async function ProductsTable({ searchParams }: ProductsTableProps) {
   // Apply filters
   if (searchParams.category) {
     query = query.eq("category", searchParams.category)
-  }
-
-  if (searchParams.search) {
-    query = query.or(`name.ilike.%${searchParams.search}%,description.ilike.%${searchParams.search}%`)
   }
 
   const { data: products, error } = await query
@@ -162,12 +159,7 @@ export async function ProductsTable({ searchParams }: ProductsTableProps) {
                             <Package className="h-4 w-4" />
                           </Button>
                         </ProductDetailsDialog>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <ProductActionsClient productId={product.id} productName={product.name} />
                       </div>
                     </TableCell>
                   </TableRow>
