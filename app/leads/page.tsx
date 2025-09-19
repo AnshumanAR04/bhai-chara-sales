@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { LeadsTable } from "@/components/leads-table"
+import { LeadsTableServer } from "@/components/leads-table-server"
 import { LeadsFilters } from "@/components/leads-filters"
 import { LeadsStats } from "@/components/leads-stats"
 import { AddLeadDialog } from "@/components/add-lead-dialog"
@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 interface LeadsPageProps {
   searchParams: {
     status?: string
-    search?: string
     page?: string
   }
 }
@@ -42,7 +41,7 @@ export default function LeadsPage({ searchParams }: LeadsPageProps) {
 
         {/* Leads Table */}
         <Suspense fallback={<TableSkeleton />}>
-          <LeadsTable searchParams={searchParams} />
+          <LeadsTableServer searchParams={searchParams} />
         </Suspense>
       </main>
     </div>

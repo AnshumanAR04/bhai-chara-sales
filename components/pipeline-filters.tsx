@@ -4,13 +4,56 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Filter, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase"
 
 export function PipelineFilters() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [districts, setDistricts] = useState<string[]>([])
+  const [crops, setCrops] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
 
   const currentDistrict = searchParams.get("district") || ""
   const currentCrop = searchParams.get("crop") || ""
+
+  useEffect(() => {
+    const fetchFiltersData = async () => {
+      const supabase = createClient()
+
+      try {
+        // Fetch unique districts
+        const { data: districtData } = await supabase
+          .from("farmers")
+          .select("district")
+          .not("district", "is", null)
+          .not("district", "eq", "")
+
+        // Fetch unique crops
+        const { data: cropData } = await supabase
+          .from("farmers")
+          .select("crop_type")
+          .not("crop_type", "is", null)
+          .not("crop_type", "eq", "")
+
+        if (districtData) {
+          const uniqueDistricts = [...new Set(districtData.map((item) => item.district))].sort()
+          setDistricts(uniqueDistricts)
+        }
+
+        if (cropData) {
+          const uniqueCrops = [...new Set(cropData.map((item) => item.crop_type))].sort()
+          setCrops(uniqueCrops)
+        }
+      } catch (error) {
+        console.error("Error fetching filter data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFiltersData()
+  }, [])
 
   const handleDistrictChange = (district: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -49,13 +92,17 @@ export function PipelineFilters() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Districts</SelectItem>
-            <SelectItem value="Sonipat">Sonipat</SelectItem>
-            <SelectItem value="Panipat">Panipat</SelectItem>
-            <SelectItem value="Karnal">Karnal</SelectItem>
-            <SelectItem value="Kurukshetra">Kurukshetra</SelectItem>
-            <SelectItem value="Ambala">Ambala</SelectItem>
-            <SelectItem value="Yamunanagar">Yamunanagar</SelectItem>
-            <SelectItem value="Hisar">Hisar</SelectItem>
+            {loading ? (
+              <SelectItem value="loading" disabled>
+                Loading...
+              </SelectItem>
+            ) : (
+              districts.map((district) => (
+                <SelectItem key={district} value={district}>
+                  {district}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
 
@@ -67,16 +114,22 @@ export function PipelineFilters() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Crops</SelectItem>
-            <SelectItem value="Wheat">Wheat</SelectItem>
-            <SelectItem value="Rice">Rice</SelectItem>
-            <SelectItem value="Cotton">Cotton</SelectItem>
-            <SelectItem value="Sugarcane">Sugarcane</SelectItem>
-            <SelectItem value="Mustard">Mustard</SelectItem>
+            {loading ? (
+              <SelectItem value="loading" disabled>
+                Loading...
+              </SelectItem>
+            ) : (
+              crops.map((crop) => (
+                <SelectItem key={crop} value={crop}>
+                  {crop}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Clear Filters */}
+      {/* Clear Filters - only show when filters are applied */}
       {hasFilters && (
         <Button variant="outline" onClick={clearFilters} size="sm">
           <X className="h-4 w-4 mr-2" />

@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { PipelineBoard } from "@/components/pipeline-board"
-import { PipelineStats } from "@/components/pipeline-stats"
+import { PipelineBoardServer } from "@/components/pipeline-board-server"
+import { PipelineStatsToggle } from "@/components/pipeline-stats-toggle"
 import { PipelineFilters } from "@/components/pipeline-filters"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,18 +19,14 @@ export default function PipelinePage({ searchParams }: PipelinePageProps) {
       <DashboardHeader />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Page Header */}
+        {/* Page Header with Stats Toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Sales Pipeline</h1>
-            <p className="text-muted-foreground">Track opportunities through the sales process</p>
+            <h1 className="text-lg font-bold text-foreground">Sales Pipeline</h1>
+            <p className="text-muted-foreground text-sm">Track opportunities through the sales process</p>
           </div>
+          <PipelineStatsToggle />
         </div>
-
-        {/* Pipeline Stats */}
-        <Suspense fallback={<StatsSkeleton />}>
-          <PipelineStats />
-        </Suspense>
 
         {/* Filters */}
         <Suspense fallback={<div className="h-16" />}>
@@ -39,24 +35,9 @@ export default function PipelinePage({ searchParams }: PipelinePageProps) {
 
         {/* Pipeline Board */}
         <Suspense fallback={<BoardSkeleton />}>
-          <PipelineBoard searchParams={searchParams} />
+          <PipelineBoardServer searchParams={searchParams} />
         </Suspense>
       </main>
-    </div>
-  )
-}
-
-function StatsSkeleton() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i}>
-          <CardContent className="p-6">
-            <Skeleton className="h-4 w-20 mb-2" />
-            <Skeleton className="h-8 w-12" />
-          </CardContent>
-        </Card>
-      ))}
     </div>
   )
 }

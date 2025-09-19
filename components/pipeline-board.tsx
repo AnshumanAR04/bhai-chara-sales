@@ -1,13 +1,30 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { createServerSupabaseClient } from "@/lib/supabase"
 import { PipelineCard } from "@/components/pipeline-card"
+import { PipelineDropZone } from "@/components/pipeline-drop-zone"
+import { createClient } from "@/lib/supabase"
+
+interface Lead {
+  id: string
+  status: string
+  notes: string | null
+  created_at: string
+  farmer: {
+    id: string
+    name: string
+    phone: string
+    village: string
+    district: string
+    crop_type: string
+    acreage: number
+  } | null
+}
 
 interface PipelineBoardProps {
-  searchParams: {
-    district?: string
-    crop?: string
-  }
+  leads: Lead[]
 }
 
 const PIPELINE_STAGES = [
@@ -19,51 +36,36 @@ const PIPELINE_STAGES = [
   { id: "won", title: "Won", color: "bg-emerald-50 border-emerald-200", headerColor: "text-emerald-700" },
 ]
 
-export async function PipelineBoard({ searchParams }: PipelineBoardProps) {
-  const supabase = await createServerSupabaseClient()
+export function PipelineBoard({ leads: initialLeads }: PipelineBoardProps) {
+  const [leads, setLeads] = useState(initialLeads)
+  const supabase = createClient()
 
-  let query = supabase
-    .from("leads")
-    .select(`
-      id,
-      status,
-      notes,
-      created_at,
-      farmer:farmers(
-        id,
-        name,
-        phone,
-        village,
-        district,
-        crop_type,
-        acreage
-      )
-    `)
-    .order("created_at", { ascending: false })
+  const handleLeadStatusUpdate = async (leadId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase.from("leads").update({ status: newStatus }).eq("id", leadId)
 
-  // Apply filters
-  if (searchParams.district) {
-    query = query.eq("farmer.district", searchParams.district)
-  }
+      if (error) {
+        console.error("Error updating lead status:", error)
+        return false
+      }
 
-  if (searchParams.crop) {
-    query = query.eq("farmer.crop_type", searchParams.crop)
-  }
+      // Update local state
+      setLeads((prevLeads) => prevLeads.map((lead) => (lead.id === leadId ? { ...lead, status: newStatus } : lead)))
 
-  const { data: leads, error } = await query
-
-  if (error) {
-    console.error("Error fetching pipeline data:", error)
-    return <div>Error loading pipeline</div>
+      return true
+    } catch (error) {
+      console.error("Error updating lead status:", error)
+      return false
+    }
   }
 
   // Group leads by status
   const leadsByStatus = PIPELINE_STAGES.reduce(
     (acc, stage) => {
-      acc[stage.id] = leads?.filter((lead) => lead.status === stage.id) || []
+      acc[stage.id] = leads.filter((lead) => lead.status === stage.id)
       return acc
     },
-    {} as Record<string, typeof leads>,
+    {} as Record<string, Lead[]>,
   )
 
   const getDaysInStage = (createdAt: string) => {
@@ -83,30 +85,35 @@ export async function PipelineBoard({ searchParams }: PipelineBoardProps) {
         const stageLeads = leadsByStatus[stage.id] || []
 
         return (
-          <Card key={stage.id} className={`${stage.color} min-h-[500px]`}>
-            <CardHeader className="pb-3">
-              <CardTitle className={`text-sm font-semibold ${stage.headerColor} flex items-center justify-between`}>
-                <span>{stage.title}</span>
-                <Badge variant="secondary" className="ml-2">
-                  {stageLeads.length}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {stageLeads.map((lead) => {
-                const daysInStage = getDaysInStage(lead.created_at)
-                const urgencyColor = getUrgencyColor(lead.status, daysInStage)
+          <PipelineDropZone key={stage.id} targetStatus={stage.id} onLeadStatusUpdate={handleLeadStatusUpdate}>
+            <Card className={`${stage.color} min-h-[500px]`}>
+              <CardHeader className="pb-3">
+                <CardTitle className={`text-sm font-semibold ${stage.headerColor} flex items-center justify-between`}>
+                  <span>{stage.title}</span>
+                  <Badge variant="secondary" className="ml-2">
+                    {stageLeads.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {stageLeads.map((lead) => {
+                  const daysInStage = getDaysInStage(lead.created_at)
+                  const urgencyColor = getUrgencyColor(lead.status, daysInStage)
 
-                return <PipelineCard key={lead.id} lead={lead} daysInStage={daysInStage} urgencyColor={urgencyColor} />
-              })}
+                  return (
+                    <PipelineCard key={lead.id} lead={lead} daysInStage={daysInStage} urgencyColor={urgencyColor} />
+                  )
+                })}
 
-              {stageLeads.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-sm">No leads in this stage</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                {stageLeads.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">No leads in this stage</p>
+                    <p className="text-xs mt-1">Drop leads here</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </PipelineDropZone>
         )
       })}
     </div>
